@@ -14,25 +14,25 @@ figure('Color',[1 1 1]); box on; grid on; hold on;
 plot(fH,'r-o','MarkerEdgeColor','b','MarkerFaceColor','w','MarkerSize',4);
 xlabel('Iteration'); ylabel('Objective function value');
 title('Objective function history'); drawnow;
-%% --------------------------------------------------- Active areas history
-figure('Color',[1 1 1]); box on; grid on; hold on;
-for i = active'
-    plot(xH(i,:),'k-');
-end
-xlabel('Iteration'); ylabel('area value');
-title('Active areas history'); drawnow;
-%% ------------------------------------------------- Inactive areas history
-figure('Color',[1 1 1]); box on; grid on; hold on;
-for i = inactive'
-    plot(xH(i,:),'k-');
-end
-xlabel('Iteration'); ylabel('area value');
-title('Inactive areas history'); drawnow;
-%% ------------------------------------------------- Member areas histogram
-figure('Color',[1 1 1]); box on; grid on; hold on;
-bar(sort(xEff(xEff>0))./max(x),'k'); xlim([.5 nnz(xEff)+.5]);
-xlabel('Sorted active member'); ylabel('Normalized area');
-title('Active member areas'); drawnow;
+% %% --------------------------------------------------- Active areas history
+% figure('Color',[1 1 1]); box on; grid on; hold on;
+% for i = active'
+%     plot(xH(i,:),'k-');
+% end
+% xlabel('Iteration'); ylabel('area value');
+% title('Active areas history'); drawnow;
+% %% ------------------------------------------------- Inactive areas history
+% figure('Color',[1 1 1]); box on; grid on; hold on;
+% for i = inactive'
+%     plot(xH(i,:),'k-');
+% end
+% xlabel('Iteration'); ylabel('area value');
+% title('Inactive areas history'); drawnow;
+% %% ------------------------------------------------- Member areas histogram
+% figure('Color',[1 1 1]); box on; grid on; hold on;
+% bar(sort(xEff(xEff>0))./max(x),'k'); xlim([.5 nnz(xEff)+.5]);
+% xlabel('Sorted active member'); ylabel('Normalized area');
+% title('Active member areas'); drawnow;
 %% --------------------------------------------------------- Final topology
 figure('Color',[1 1 1]); box off; hold on; grid off; axis equal;
 for e = find(xEff>0)'

@@ -1,5 +1,5 @@
 function [NODE,ELEM,SUPP,LOAD]=StructDomain(Nx,Ny,Lx,Ly,CS,CL,DrawBC)
-if nargin<7 || iesmpty(DrawBC), DrawBC=true;
+if nargin<7 || isempty(DrawBC), DrawBC=true;
 elseif nargin<6, error('Not enough input arguments.'), end
 %% --------------------------------- Generate structured-orthogonal domains
 [X,Y] = meshgrid(linspace(0,Lx,Nx+1),linspace(0,Ly,Ny+1));

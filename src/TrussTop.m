@@ -11,7 +11,8 @@ while (Iter<opt.MaxIter) && (Change>Tol)
     %Store design vars. and obj. function history
     x_hist(:,Iter) = x; f_hist(Iter) = f;
     %Update design variable and analysis parameters
-    [x,Change,x_,dfdx_] = UpdateScheme(dfdx,g,dgdx,x,dfdx_,x_,Iter,opt);
+    [x,Change,x_,dfdx_] = feval(opt.UpdateScheme,...
+        dfdx,g,dgdx,x,dfdx_,x_,Iter,opt);
 end
 % Calculate stress and internal force
 fem = Stress(fem,FEAnalysis(fem,x));
@@ -30,8 +31,7 @@ function [g,dgdx,fem] = ConstraintFnc(fem,x,VolMax)
 g = dot(fem.L,x)-VolMax;
 dgdx = fem.L;
 %% --------------------------------------------- OPTIMALITY CRITERIA UPDATE
-function [xNew,Change,x_,dfdx_] = UpdateScheme...
-    (dfdx,g,dgdx,x,dfdx_,x_,Iter,opt)
+function [xNew,Change,x_,dfdx_] = OC (dfdx,g,dgdx,x,dfdx_,x_,Iter,opt)
 xMin=opt.xMin; xMax=opt.xMax; move=opt.OCMove*(xMax-xMin); eta=opt.OCEta;
 if Iter>1 && opt.Adapt
     eta=1./(1-max(min(1+log(dfdx./dfdx_)./log(x./x_),-.1),-15));
@@ -43,6 +43,31 @@ while l2-l1 > 1e-10*(1+l2)
     xNew = max(max(min(min(xCnd,x+move),xMax),x-move),xMin);
     if (g+dgdx'*(xNew-x)>0), l1=lmid; else, l2=lmid; end
 end
+x_ = x; dfdx_ = dfdx; Change = max(abs(xNew-x)./(1+x));
+%% ---------------------------------------------------------- DIRECT UPDATE
+function [xNew,Change,x_,dfdx_] = DirectUpdate (dfdx,g,dgdx,x,dfdx_,x_,Iter,opt)
+xMin=opt.xMin; xMax=opt.xMax; move=opt.OCMove*(xMax-xMin); eta=opt.OCEta;
+if Iter>1 && opt.Adapt
+    eta=1./(1-max(min(1+log(dfdx./dfdx_)./log(x./x_),-.1),-15));
+end
+change = true; ocIter = 0; gRem = sum(dgdx.*x) - g;
+xCnd = xMin + (x-xMin).*max(0,-(dfdx./dgdx)).^eta;
+xCndGrad = xCnd.*dgdx;
+while change
+    varIn = true(size(dfdx)); gToDist = gRem;
+    xMax1 = min(x+move,xMax); xMin1 = max(x-move,xMin);
+    xUpGrad = xMax1.*dgdx; xDnGrad = xMin1.*dgdx;
+    while change && rem(ocIter+1,15)~=0 && gToDist>=0
+        xNew = xCnd*gToDist/sum(xCndGrad(varIn));
+        upLgc = xNew>xMax1; dnLgc = xNew<xMin1;
+        gToDist = gRem - sum(xUpGrad(upLgc)) - sum(xDnGrad(dnLgc));
+        change = ~isequal(~varIn,upLgc|dnLgc);
+        varIn = ~(upLgc|dnLgc); ocIter = ocIter + 1;
+    end
+    if move<1, move = min(1,move*1.5); else, break; end
+end
+xNew(upLgc) = xMax1(upLgc);
+xNew(dnLgc) = xMin1(dnLgc);
 x_ = x; dfdx_ = dfdx; Change = max(abs(xNew-x)./(1+x));
 %% ------------------------------------------------------------ FE-ANALYSIS
 function [U,fem] = FEAnalysis(fem,x)

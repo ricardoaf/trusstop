@@ -34,15 +34,13 @@ opt = struct(...
     'MaxIter',4000,...        % Max. number of optimization iterations
     'OCMove',Area*1e+04,...   % Allowable move step in OC update scheme
     'OCEta',0.5, ...          % Exponent used in OC update scheme
-    'Adapt',true, ...         % Adaptive Modified OC update scheme
-    ...
-    'Asymptotic',true, ...    % Asymptotic scheme
-    'An',2, ...               % 
-    'Am',2, ...
-    'Atol',1e-4 ...
+    'Adapt',true,...          % Adaptive Modified OC update scheme
+    'UpdateScheme','OC'...    % Update scheme
     );
 %% --------------------------------------------------------- RUN 'TrussTop'
-tic; [xHist,fHist,fem] = ATrussTop(fem,opt);
+opt.UpdateScheme = 'OC';
+opt.Adapt = true;
+tic; [xHist,fHist,fem] = TrussTop(fem,opt);
 Time = toc;
 %% ------------------------------------------------------- CALL 'TrussView'
 Filter = 0.01;  % Fraction of maximum area value (for visualization)
