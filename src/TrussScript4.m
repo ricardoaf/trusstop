@@ -2,7 +2,8 @@
 Nx = 12; Ny = 12;                   % Number of cells
 Lx = 12; Ly = 12;                   % Domain size
 CS = [0 Ly/2, 1 1; Lx Ly/2, 1 1];   % Support data [x y, sx sy; ...]
-CL = [Lx/2 Ly/2, 0 -1];             % Load data    [x y, Px Py; ...]
+P = 1;                              % Load value
+CL = [Lx/2 Ly/2, 0 -P];             % Load data    [x y, Px Py; ...]
 Lvl = 12;                           % Ground structure (GS) level
 RestrictDomain = @(nodes,coord)[];  % Define void regions
 ColTol = 0.999999;                  % Colinear tolerance for GS
@@ -39,6 +40,7 @@ opt = struct(...
     );
 %% --------------------------------------------------------- RUN 'TrussTop'
 opt.UpdateScheme = 'OC';
+% opt.UpdateScheme = 'DirectUpdate';
 opt.Adapt = true;
 tic; [xHist,fHist,fem] = TrussTop(fem,opt);
 Time = toc;

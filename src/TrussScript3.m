@@ -39,6 +39,7 @@ opt = struct(...
     );
 %% --------------------------------------------------------- RUN 'TrussTop'
 opt.UpdateScheme = 'OC';
+% opt.UpdateScheme = 'DirectUpdate';
 opt.Adapt = true;
 tic; [xHist,fHist,fem] = TrussTop(fem,opt);
 Time = toc;
